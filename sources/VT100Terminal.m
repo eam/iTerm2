@@ -1575,16 +1575,6 @@ static const int kMaxScreenRows = 4096;
             break;
 
         case ANSICSI_PRINT:
-            switch (token.csi->p[0]) {
-                case 4:
-                    [delegate_ terminalPrintBuffer];
-                    break;
-                case 5:
-                    [delegate_ terminalBeginRedirectingToPrintBuffer];
-                    break;
-                default:
-                    [delegate_ terminalPrintScreen];
-            }
             break;
 
             // XTERM extensions
@@ -1596,10 +1586,6 @@ static const int kMaxScreenRows = 4096;
             [delegate_ terminalSetIconTitle:[token.string stringByReplacingControlCharsWithQuestionMark]];
             break;
         case XTERMCC_PASTE64: {
-            NSString *decoded = [self decodedBase64PasteCommand:token.string];
-            if (decoded) {
-                [delegate_ terminalPasteString:decoded];
-            }
             break;
         }
         case XTERMCC_FINAL_TERM:
@@ -1735,17 +1721,13 @@ static const int kMaxScreenRows = 4096;
         }
         // Our iTerm specific codes
         case ITERM_GROWL:
-            [delegate_ terminalPostGrowlNotification:token.string];
             break;
 
         case XTERMCC_MULTITOKEN_HEADER_SET_KVP:
         case XTERMCC_SET_KVP:
-            [self executeXtermSetKvp:token];
             break;
 
         case XTERMCC_MULTITOKEN_BODY:
-            // You'd get here if the user stops a file download before it finishes.
-            [delegate_ terminalAppendString:token.string];
             break;
 
         case XTERMCC_MULTITOKEN_END:
